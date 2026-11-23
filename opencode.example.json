@@ -1,0 +1,151 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "providers": {
+    "claude-agent-native": {
+      "name": "Claude Agent Native (experimental)",
+      "package": "aisdk:file:///ABSOLUTE/PATH/TO/opencode-claude-agent-native/dist/index.js",
+      "models": {
+        "default": {
+          "name": "Claude Code Default (currently Opus 5.5)",
+          "capabilities": {
+            "tools": true
+          },
+          "limit": {
+            "context": 200000,
+            "output": 8192
+          }
+        },
+        "opus": {
+          "name": "Claude Opus (latest)",
+          "capabilities": {
+            "tools": true
+          },
+          "limit": {
+            "context": 200000,
+            "output": 8192
+          }
+        },
+        "sonnet": {
+          "name": "Claude Sonnet (latest)",
+          "capabilities": {
+            "tools": true
+          },
+          "limit": {
+            "context": 200000,
+            "output": 8192
+          }
+        },
+        "fable": {
+          "name": "Claude Fable (latest)",
+          "capabilities": {
+            "tools": true
+          },
+          "limit": {
+            "context": 200000,
+            "output": 8192
+          }
+        },
+        "haiku": {
+          "name": "Claude Haiku (experimental native)",
+          "capabilities": {
+            "tools": true
+          },
+          "limit": {
+            "context": 200000,
+            "output": 64000
+          }
+        },
+        "claude-fable-5-1": {
+          "name": "Claude Fable 5.1",
+          "capabilities": {
+            "tools": true
+          },
+          "limit": {
+            "context": 200000,
+            "output": 8192
+          }
+        },
+        "claude-haiku-4-5-20251001": {
+          "name": "Claude Haiku 4.5",
+          "capabilities": {
+            "tools": true
+          },
+          "limit": {
+            "context": 200000,
+            "output": 8192
+          }
+        },
+        "claude-sonnet-5": {
+          "name": "Claude Sonnet 5",
+          "capabilities": {
+            "tools": true
+          },
+          "limit": {
+            "context": 200000,
+            "output": 8192
+          }
+        },
+        "claude-opus-5": {
+          "name": "Claude Opus 5",
+          "capabilities": {
+            "tools": true
+          },
+          "limit": {
+            "context": 200000,
+            "output": 8192
+          }
+        },
+        "claude-fable-5": {
+          "name": "Claude Fable 5",
+          "capabilities": {
+            "tools": true
+          },
+          "limit": {
+            "context": 200000,
+            "output": 8192
+          }
+        },
+        "claude-opus-4-8": {
+          "name": "Claude Opus 4.8",
+          "capabilities": {
+            "tools": true
+          },
+          "limit": {
+            "context": 200000,
+            "output": 8192
+          }
+        },
+        "claude-opus-4-7": {
+          "name": "Claude Opus 4.7",
+          "capabilities": {
+            "tools": true
+          },
+          "limit": {
+            "context": 200000,
+            "output": 8192
+          }
+        },
+        "claude-opus-4-6": {
+          "name": "Claude Opus 4.6",
+          "capabilities": {
+            "tools": true
+          },
+          "limit": {
+            "context": 200000,
+            "output": 8192
+          }
+        },
+        "claude-sonnet-4-6": {
+          "name": "Claude Sonnet 4.6",
+          "capabilities": {
+            "tools": true
+          },
+          "limit": {
+            "context": 200000,
+            "output": 8192
+          }
+        }
+      }
+    }
+  }
+}
