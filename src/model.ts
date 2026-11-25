@@ -34,6 +34,17 @@ export function providerError(error: unknown): Error {
   })
 }
 
+const EFFORTS = ["low", "medium", "high", "xhigh", "max"] as const
+
+// OpenCode sends the selected model variant's settings under the provider ID.
+export function effortOption(options: LanguageModelV3CallOptions) {
+  const effort = options.providerOptions?.["claude-agent-native"]?.effort
+  if (effort === undefined) return undefined
+  const level = EFFORTS.find((item) => item === effort)
+  if (!level) throw new Error("Claude effort must be low, medium, high, xhigh or max")
+  return level
+}
+
 export function promptParts(options: LanguageModelV3CallOptions) {
   const systems = options.prompt.filter((message) => message.role === "system")
   const system = systems.map((message) => message.content).join("\n")
@@ -51,7 +62,9 @@ export function promptParts(options: LanguageModelV3CallOptions) {
   const prompt = user.content.map((part) => part.type === "text" ? part.text : "").join("\n")
   const isCompaction = prompt.includes("Do not continue the task or call tools.")
     || prompt.includes("did not fill in the required summary template")
-  return { directory, instructions, prompt, isCompaction, history: options.prompt }
+  return {
+    directory, instructions, prompt, isCompaction, history: options.prompt, effort: effortOption(options),
+  }
 }
 
 export class ClaudeModel implements LanguageModelV3 {
@@ -137,7 +150,7 @@ export class ClaudeModel implements LanguageModelV3 {
       }
       const request = handoff(input.history, input.prompt, anchor)
       const claude = startClaude(
-        request, input.directory, this.modelId, record?.claudeID, input.instructions, abort,
+        request, input.directory, this.modelId, record?.claudeID, input.instructions, abort, input.effort,
       )
       const events = new ClaudeEvents()
       let claudeID = record?.claudeID
@@ -165,19 +178,7 @@ export class ClaudeModel implements LanguageModelV3 {
         sink.enqueue({
           type: "finish",
           finishReason: { unified: "stop", raw: message.stop_reason ?? undefined },
-          usage: {
-            inputTokens: {
-              total: message.usage.input_tokens,
-              noCache: message.usage.input_tokens,
-              cacheRead: message.usage.cache_read_input_tokens ?? 0,
-              cacheWrite: message.usage.cache_creation_input_tokens ?? 0,
-            },
-            outputTokens: {
-              total: message.usage.output_tokens,
-              text: message.usage.output_tokens,
-              reasoning: 0,
-            },
-          },
+          usage: events.usage.snapshot(),
         })
       }
       sink.close()

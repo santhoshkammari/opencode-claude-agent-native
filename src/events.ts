@@ -1,5 +1,6 @@
 import type { LanguageModelV3StreamPart } from "@ai-sdk/provider"
 import type { SDKMessage } from "@anthropic-ai/claude-agent-sdk"
+import { TurnUsage } from "./usage.js"
 
 type Part = LanguageModelV3StreamPart
 type Block = { type: "text" | "thinking" | "tool_use"; id: string; name?: string; input: string }
@@ -8,8 +9,13 @@ export class ClaudeEvents {
   private readonly blocks = new Map<number, Block>()
   private readonly tools = new Map<string, string>()
   private messageID = ""
+  readonly usage = new TurnUsage()
 
   convert(message: SDKMessage): Part[] {
+    if (message.type === "assistant" && message.parent_tool_use_id === null) {
+      this.usage.update(message.message.id, message.message.usage)
+    }
+    if (message.type === "result") this.usage.result(message.usage)
     if (message.type === "stream_event" && message.parent_tool_use_id === null) {
       return this.stream(message.event)
     }
@@ -22,6 +28,7 @@ export class ClaudeEvents {
   private stream(event: Extract<SDKMessage, { type: "stream_event" }>["event"]): Part[] {
     if (event.type === "message_start") {
       this.messageID = event.message.id
+      this.usage.update(event.message.id, event.message.usage)
       return [{ type: "response-metadata", id: event.message.id, modelId: event.message.model }]
     }
     if (event.type === "content_block_start") {
@@ -50,6 +57,7 @@ export class ClaudeEvents {
       return []
     }
     if (event.type === "content_block_stop") return this.endBlock(event.index)
+    if (event.type === "message_delta") this.usage.update(this.messageID, event.usage)
     return []
   }
 

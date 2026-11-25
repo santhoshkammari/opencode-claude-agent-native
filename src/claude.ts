@@ -1,6 +1,12 @@
-import { query, type Options } from "@anthropic-ai/claude-agent-sdk"
+import { query, type EffortLevel, type Options } from "@anthropic-ai/claude-agent-sdk"
 
 type Cancellation = AbortController
+
+// Replaces Claude Code's large preset prompt and tool set; OpenCode's AGENTS.md text is appended.
+export const SYSTEM_PROMPT = [
+  "You are a coding agent in the user's terminal. Bash is your only tool: read with cat, sed -n or head, search with rg, edit with heredocs, sed or short scripts; keep output small (head, rg -m, wc) and batch independent commands into one call.",
+  "Be concise: act, verify, then report the result in 1-3 plain lines.",
+].join("\n")
 
 export function claudeOptions(
   directory: string,
@@ -8,6 +14,7 @@ export function claudeOptions(
   sessionID?: string,
   instructions?: string,
   cancellation?: Cancellation,
+  effort?: EffortLevel,
 ): Options {
   const environment = { ...process.env }
   delete environment.CLAUDECODE
@@ -26,14 +33,11 @@ export function claudeOptions(
     settings: { disableAllHooks: true },
     strictMcpConfig: true,
     mcpServers: {},
-    disallowedTools: ["Agent", "Task", "mcp__*"],
-    skills: "all",
-    systemPrompt: {
-      type: "preset",
-      preset: "claude_code",
-      ...(instructions ? { append: instructions } : {}),
-    },
+    tools: ["Bash"],
+    disallowedTools: ["mcp__*"],
+    systemPrompt: instructions ? `${SYSTEM_PROMPT}\n\n${instructions}` : SYSTEM_PROMPT,
     includePartialMessages: true,
+    ...(effort ? { effort } : {}),
     ...(sessionID ? { resume: sessionID } : {}),
     ...(cancellation ? { abortController: cancellation } : {}),
   }
@@ -46,7 +50,8 @@ export function startClaude(
   sessionID?: string,
   instructions?: string,
   cancellation?: Cancellation,
+  effort?: EffortLevel,
 ) {
-  const options = claudeOptions(directory, model, sessionID, instructions, cancellation)
+  const options = claudeOptions(directory, model, sessionID, instructions, cancellation, effort)
   return query({ prompt, options })
 }

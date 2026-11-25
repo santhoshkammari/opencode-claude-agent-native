@@ -13,7 +13,7 @@ or run commands without OpenCode permission checks. Use it only in a trusted wor
 - Git repository: the standalone project repository
 - OpenCode config: `~/.config/opencode/opencode.jsonc`
 - Provider ID: `claude-agent-native`
-- Current local bundle: `dist/provider-v8.js`
+- Current local bundle: `dist/provider-v10.js`
 - Claude session mappings: `~/.local/state/opencode-claude-agent-native/`
 - Claude transcripts: `~/.claude/projects/`, under the directory for the workspace
 - Original reference project: the former `opencode-claude-native` project. Its plugin remains disabled.
@@ -45,7 +45,7 @@ resolve through Claude Code. Availability and access can change.
 5. Run `opencode models | grep '^claude-agent-native/'`.
 
 Do not add a second `providers` object to the same JSONC file. Preserve unrelated settings.
-The current installation uses `provider-v8.js`, not the example's `index.js`.
+The current installation uses `provider-v10.js`, not the example's `index.js`.
 After a source change, rebuild the bundle that the config references.
 The shared server previously retained an older module at the same path. A new bundle filename
 and config path made it load the new build without a service restart.
@@ -78,6 +78,15 @@ is not supported.
 OpenCode stream events. Tool calls are marked as provider-executed. Claude uses its native
 tools and skills. The SDK configuration disables MCP servers, Claude `Agent` and `Task`
 tools, and hooks. It does not use an OpenCode MCP tool bridge.
+
+### Effort, tools, and usage
+
+Each model entry can list `variants` such as `{ "id": "high", "settings": { "effort": "high" } }`.
+OpenCode passes the selected variant's settings to the provider, which sets the Claude SDK
+`effort` (`low`, `medium`, `high`, `xhigh`, `max`; the 4.6 models have no `xhigh`, and Haiku 4.5
+has no effort). Claude runs with a two-line system prompt plus OpenCode's instructions and
+only the Bash tool. Reported context is the last API call's input; output is summed per turn.
+Cost comes from the `cost` entries in the config and prices each turn as one call.
 
 ### Model changes
 
